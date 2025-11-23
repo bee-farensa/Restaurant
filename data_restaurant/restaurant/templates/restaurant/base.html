@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodQuest - Review Restoran</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 900px; 
+            margin: 20px auto; 
+            padding: 20px; 
+        }
+        nav a { 
+            margin-right: 15px; 
+            color: blue; 
+            text-decoration: none; 
+        }
+        nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>🍜 FoodQuest - Review Restoran</h1>
+    
+    <nav>
+        <a href="{% url 'home' %}">🏠 Home</a>
+        <a href="{% url 'review_list' %}">⭐ Semua Review</a>
+        <a href="{% url 'foodie_list' %}">👥 Foodies</a>
+    </nav>
+    
+    <hr>
+    
+    {% if messages %}
+        {% for message in messages %}
+        <p style="color: green;"><strong>{{ message }}</strong></p>
+        {% endfor %}
+    {% endif %}
+    
+    {% block content %}{% endblock %}
+    
+    <hr>
+    <footer>
+        <p>&copy; 2024 FoodQuest</p>
+    </footer>
+</body>
+</html>

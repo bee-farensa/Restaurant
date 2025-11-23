@@ -1,0 +1,31 @@
+{% extends 'restaurant/base.html' %}
+
+{% block content %}
+<h2>⭐ Semua Review</h2>
+
+<p>Total Review: <strong>{{ reviews.count }}</strong></p>
+
+{% if reviews %}
+    <ul style="list-style: none; padding: 0;">
+        {% for review in reviews %}
+        <li style="margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+            <strong>
+                <a href="{% url 'foodie_detail' review.foodie.id %}">{{ review.foodie.username }}</a>
+            </strong> 
+            mereview 
+            <strong>
+                <a href="{% url 'restaurant_detail' review.restaurant.id %}">{{ review.restaurant.nama }}</a>
+            </strong>
+            <br>
+            <span style="color: orange;">Rating: {{ review.rating }}⭐</span> - 
+            <small>{{ review.waktu_review|date:"d M Y, H:i" }}</small>
+            <p>{{ review.komentar }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Belum ada review yang dibuat.</p>
+{% endif %}
+
+<a href="{% url 'home' %}">← Kembali ke Home</a>
+{% endblock %}

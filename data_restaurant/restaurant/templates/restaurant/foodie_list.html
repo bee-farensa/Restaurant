@@ -1,0 +1,24 @@
+{% extends 'restaurant/base.html' %}
+
+{% block content %}
+<h2>👥 Daftar Foodies</h2>
+
+<p>Total Foodies: <strong>{{ foodies.count }}</strong></p>
+
+<ul>
+    {% for foodie in foodies %}
+    <li style="margin-bottom: 10px;">
+        <a href="{% url 'foodie_detail' foodie.id %}">
+            <strong>{{ foodie.username }}</strong>
+        </a> 
+        - {{ foodie.email }} 
+        - <small>Bergabung: {{ foodie.waktu|date:"d M Y" }}</small>
+        - <span style="color: orange;">{{ foodie.reviews.count }} review</span>
+    </li>
+    {% empty %}
+    <li>Belum ada foodie yang terdaftar.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'home' %}">← Kembali ke Home</a>
+{% endblock %}
