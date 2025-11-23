@@ -1,0 +1,29 @@
+{% extends 'restaurant/base.html' %}
+{% block content %}
+<h2>👁️ Detail Review</h2>
+
+<p><strong>Restoran:</strong> {{ review.restaurant.nama }}</p>
+<p><strong>Kategori:</strong> {{ review.restaurant.get_kategori_display }}</p>
+<p><strong>Lokasi:</strong> {{ review.restaurant.lokasi }}</p>
+<p><strong>No. Telp:</strong> {{ review.restaurant.no_telp }}</p>
+
+<hr>
+
+<p><strong>Reviewer:</strong> {{ review.foodie.username }}</p>
+<p><strong>Rating:</strong> 
+{% for i in "12345" %}
+    {% if i|add:0 <= review.rating %}⭐{% else %}☆{% endif %}
+{% endfor %}
+({{ review.rating }}/5)
+</p>
+<p><strong>Komentar:</strong></p>
+<p>{{ review.komentar }}</p>
+
+<p><em>Diposting: {{ review.waktu_review }}</em></p>
+
+<hr>
+
+<a href="{% url 'review_edit' review.id %}"><button>✏️ Edit</button></a>
+<a href="{% url 'review_delete' review.id %}"><button>🗑️ Hapus</button></a>
+<a href="{% url 'review_list' %}"><button>🔙 Kembali</button></a>
+{% endblock %}

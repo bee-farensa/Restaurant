@@ -1,38 +1,36 @@
 {% extends 'restaurant/base.html' %}
-
 {% block content %}
-<h2>✍️ Tulis Review untuk {{ restaurant.nama }}</h2>
+<h2>{% if form.instance.pk %}✏️ Edit Review{% else %}➕ Tambah Review{% endif %}</h2>
 
-<form method="POST">
+<form method="post">
     {% csrf_token %}
     
-    <p>
-        <label>Nama Kamu:</label><br>
-        <input type="text" name="nama" required placeholder="Masukkan nama kamu" style="width: 100%; padding: 8px;">
-    </p>
+    {% if form.instance.pk %}
+        <p>Restoran: <strong>{{ form.instance.restaurant.nama }}</strong></p>
+        <p>Foodie: <strong>{{ form.instance.foodie.username }}</strong></p>
+    {% else %}
+        <div>
+            <label>Restoran:</label>
+            {{ form.restaurant }}
+        </div>
+        
+        <div>
+            <label>Foodie:</label>
+            {{ form.foodie }}
+        </div>
+    {% endif %}
     
-    <p>
-        <label>Email Kamu:</label><br>
-        <input type="email" name="email" required placeholder="contoh@email.com" style="width: 100%; padding: 8px;">
-    </p>
+    <div>
+        <label>Rating (1-5):</label>
+        {{ form.rating }}
+    </div>
     
-    <p>
-        <label>Rating:</label><br>
-        <input type="radio" name="rating" value="1" required> 1⭐
-        <input type="radio" name="rating" value="2"> 2⭐
-        <input type="radio" name="rating" value="3"> 3⭐
-        <input type="radio" name="rating" value="4"> 4⭐
-        <input type="radio" name="rating" value="5"> 5⭐
-    </p>
+    <div>
+        <label>Komentar:</label>
+        {{ form.komentar }}
+    </div>
     
-    <p>
-        <label>Komentar:</label><br>
-        <textarea name="komentar" rows="6" required placeholder="Ceritakan pengalaman kamu di sini..." style="width: 100%; padding: 8px;"></textarea>
-    </p>
-    
-    <button type="submit" style="padding: 10px 20px; background: green; color: white; border: none; border-radius: 5px; cursor: pointer;">
-        Submit Review
-    </button>
-    <a href="{% url 'restaurant_detail' restaurant.id %}">Batal</a>
+    <button type="submit">✅ {% if form.instance.pk %}Update{% else %}Tambah{% endif %}</button>
+    <a href="{% url 'review_list' %}"><button type="button">❌ Batal</button></a>
 </form>
 {% endblock %}

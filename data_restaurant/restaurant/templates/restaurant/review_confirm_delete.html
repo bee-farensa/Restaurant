@@ -1,0 +1,18 @@
+{% extends 'restaurant/base.html' %}
+{% block content %}
+<h2>⚠️ Hapus Review?</h2>
+
+<p>Yakin mau hapus review ini?</p>
+<p>
+    <strong>Restoran:</strong> {{ review.restaurant.nama }}<br>
+    <strong>Reviewer:</strong> {{ review.foodie.username }}<br>
+    <strong>Rating:</strong> {{ review.rating }}/5<br>
+    <strong>Komentar:</strong> {{ review.komentar|truncatewords:20 }}
+</p>
+
+<form method="post" style="display: inline;">
+    {% csrf_token %}
+    <button type="submit" style="background: red;">🗑️ Ya, Hapus</button>
+</form>
+<a href="{% url 'review_list' %}"><button type="button">❌ Batal</button></a>
+{% endblock %}

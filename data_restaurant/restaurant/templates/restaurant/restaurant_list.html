@@ -1,14 +1,12 @@
 {% extends 'restaurant/base.html' %}
-
 {% block content %}
 <h2>🍽️ Daftar Restoran</h2>
-
 <ul>
     {% for restaurant in restaurants %}
     <li>
-        <a href="{% url 'restaurant_detail' restaurant.id%}">
+        <a href="{% url 'restaurant_detail' restaurant.id %}">
             <strong>{{ restaurant.nama }}</strong>
-        </a> 
+        </a>
     </li>
     {% empty %}
     <li>Belum ada restoran.</li>

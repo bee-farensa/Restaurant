@@ -1,43 +1,35 @@
 {% extends 'restaurant/base.html' %}
-
 {% block content %}
-<h2>👤 Profile: {{ foodie.username }}</h2>
+<h2>👥 Detail Foodie</h2>
 
+<p><strong>Username:</strong> {{ foodie.username }}</p>
 <p><strong>Email:</strong> {{ foodie.email }}</p>
-<p><strong>Bergabung:</strong> {{ foodie.waktu|date:"d M Y, H:i" }}</p>
-<p><strong>Total Review:</strong> {{ reviews.count }}</p>
+<p><strong>Terdaftar:</strong> {{ foodie.waktu }}</p>
 
 <hr>
-
 <h3>⭐ Review dari {{ foodie.username }}</h3>
 
-{% if reviews %}
-    <ul style="list-style: none; padding: 0;">
-        {% for review in reviews %}
-        <li style="margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
-            <strong>
-                <a href="{% url 'restaurant_detail' review.restaurant.id %}">{{ review.restaurant.nama }}</a>
-            </strong> - 
-            <span style="color: orange;">{{ review.rating }}⭐</span> - 
-            <small>{{ review.waktu_review|date:"d M Y, H:i" }}</small>
-            <p>{{ review.komentar }}</p>
-            
-            <div style="margin-top: 10px;">
-                <a href="{% url 'edit_review' review.id %}" 
-                   style="padding: 5px 15px; background: blue; color: white; text-decoration: none; border-radius: 3px; font-size: 14px;">
-                    ✏️ Edit
-                </a>
-                <a href="{% url 'delete_review' review.id %}" 
-                   style="padding: 5px 15px; background: red; color: white; text-decoration: none; border-radius: 3px; font-size: 14px;">
-                    🗑️ Hapus
-                </a>
-            </div>
-        </li>
+{% if foodie.reviews.all %}
+<ul>
+    {% for review in foodie.reviews.all %}
+    <li>
+        <strong>{{ review.restaurant.nama }}</strong>
+        - Rating: 
+        {% for i in "12345" %}
+            {% if i|add:0 <= review.rating %}⭐{% else %}☆{% endif %}
         {% endfor %}
-    </ul>
+        ({{ review.rating }}/5)
+        <br>
+        {{ review.komentar|truncatewords:20 }}
+        <br>
+        <a href="{% url 'review_detail' review.id %}">👁️ Lihat</a>
+    </li>
+    {% endfor %}
+</ul>
 {% else %}
-    <p>{{ foodie.username }} belum membuat review apapun.</p>
+<p>{{ foodie.username }} belum membuat review apapun.</p>
 {% endif %}
 
-<a href="{% url 'foodie_list' %}">← Kembali ke Daftar Foodies</a>
+<hr>
+<a href="{% url 'foodie_list' %}"><button>🔙 Kembali ke List</button></a>
 {% endblock %}

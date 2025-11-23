@@ -1,39 +1,38 @@
 {% extends 'restaurant/base.html' %}
-
 {% block content %}
-<h2>{{ restaurant.nama }}</h2>
+<h2>🍽️ Detail Restoran</h2>
 
-<p><strong>📍 Lokasi:</strong> {{ restaurant.lokasi }}</p>
-<p><strong>📞 Telp:</strong> {{ restaurant.no_telp }}</p>
-<p><strong>🍽️ Kategori:</strong> {{ restaurant.get_kategori_display }}</p>
+<p><strong>Nama:</strong> {{ restaurant.nama }}</p>
+<p><strong>Kategori:</strong> {{ restaurant.get_kategori_display }}</p>
+<p><strong>Lokasi:</strong> {{ restaurant.lokasi }}</p>
+<p><strong>No. Telp:</strong> {{ restaurant.no_telp }}</p>
+<p><strong>Deskripsi:</strong></p>
 <p>{{ restaurant.deskripsi }}</p>
 
-<a href="{% url 'review_form' restaurant.id %}" style="display: inline-block; padding: 10px 20px; background: green; color: white; text-decoration: none; border-radius: 5px;">
-    ✍️ Tulis Review
-</a>
-
 <hr>
+<h3>⭐ Review untuk Restoran Ini</h3>
 
-<h3>⭐ Reviews ({{ reviews.count }})</h3>
-
-{% if reviews %}
-    <ul style="list-style: none; padding: 0;">
-        {% for review in reviews %}
-        <li style="margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
-            <strong>
-                <a href="{% url 'foodie_detail' review.foodie.id %}">{{ review.foodie.username }}</a>
-            </strong> 
-            ({{ review.foodie.email }}) - 
-            <span style="color: orange;">{{ review.rating }}⭐</span> - 
-            <small>{{ review.waktu_review|date:"d M Y, H:i" }}</small>
-            
-            <p>{{ review.komentar }}</p>
-        </li>
+{% if restaurant.reviews.all %}
+<ul>
+    {% for review in restaurant.reviews.all %}
+    <li>
+        <strong>{{ review.foodie.username }}</strong> 
+        - Rating: 
+        {% for i in "12345" %}
+            {% if i|add:0 <= review.rating %}⭐{% else %}☆{% endif %}
         {% endfor %}
-    </ul>
+        ({{ review.rating }}/5)
+        <br>
+        {{ review.komentar|truncatewords:20 }}
+        <br>
+        <a href="{% url 'review_detail' review.id %}">👁️ Lihat</a>
+    </li>
+    {% endfor %}
+</ul>
 {% else %}
-    <p>Belum ada review. Jadilah yang pertama!</p>
+<p>Belum ada review untuk restoran ini.</p>
 {% endif %}
 
-<a href="{% url 'restaurant_list' %}">← Kembali ke Home</a>
+<hr>
+<a href="{% url 'restaurant_list' %}"><button>🔙 Kembali ke List</button></a>
 {% endblock %}

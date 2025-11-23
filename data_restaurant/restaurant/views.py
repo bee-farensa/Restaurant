@@ -1,146 +1,155 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib import messages
+from django.urls import reverse_lazy
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+
 from .models import Restaurant, Foodie, Review
-from rest_framework import viewsets
-from .serializers import RestaurantSerializer, FoodieSerializer, ReviewSerializer, ReviewCreateSerializer
-from .forms import FoodieForm, ReviewForm
+from .serializers import RestaurantSerializer, FoodieSerializer, ReviewSerializer
 
-# Homepage - List Restoran
-def restaurant_list(request):
-    restaurants = Restaurant.objects.all()
-    return render(request, 'restaurant/restaurant_list.html', {'restaurants': restaurants})
 
-# Detail Restoran + Reviews
-def restaurant_detail(request, id):
-    restaurant = get_object_or_404(Restaurant, id=id)
-    reviews = restaurant.reviews.all()
-    return render(request, 'restaurant/restaurant_detail.html', {
-        'restaurant': restaurant,
-        'reviews': reviews
-    })
 
-# Submit Review
-def review_form(request, restaurant_id):
-    restaurant = get_object_or_404(Restaurant, id=restaurant_id)
+class RestaurantListView(ListView):
+    """List semua restaurant - Read only untuk user"""
+    model = Restaurant
+    template_name = 'restaurant/restaurant_list.html'
+    context_object_name = 'restaurants'
+    paginate_by = 10
+
+
+class RestaurantDetailView(DetailView):
+    """Detail restaurant"""
+    model = Restaurant
+    template_name = 'restaurant/restaurant_detail.html'
+    context_object_name = 'restaurant'
+
+
+class FoodieListView(ListView):
+    """List semua foodies"""
+    model = Foodie
+    template_name = 'restaurant/foodie_list.html'
+    context_object_name = 'foodies'
+    paginate_by = 10
+
+
+class FoodieCreateView(CreateView):
+    """Create foodie baru"""
+    model = Foodie
+    template_name = 'restaurant/foodie_form.html'
+    fields = ['username', 'email']
+    success_url = reverse_lazy('foodie_list')
     
-    if request.method == 'POST':
-        nama = request.POST.get('nama')
-        email = request.POST.get('email')
-        rating = request.POST.get('rating')
-        komentar = request.POST.get('komentar')
+    def form_valid(self, form):
+        # Cek username sudah ada
+        if Foodie.objects.filter(username=form.cleaned_data['username']).exists():
+            messages.error(self.request, "❌ Username sudah dipakai oleh foodie lain!")
+            return self.form_invalid(form)
         
-        # Cari atau buat Foodie
-        foodie, created = Foodie.objects.get_or_create(
-            username=nama,
-            defaults={'email': email}
-        )
+        # Cek email sudah ada
+        if Foodie.objects.filter(email=form.cleaned_data['email']).exists():
+            messages.error(self.request, "❌ Email sudah dipakai oleh foodie lain!")
+            return self.form_invalid(form)
         
-        # Update email kalau berbeda
-        if not created and foodie.email != email:
-            foodie.email = email
-            foodie.save()
-        
-        # Buat review
-        Review.objects.create(
-            restaurant=restaurant,
-            foodie=foodie,
-            rating=rating,
-            komentar=komentar
-        )
-        
-        messages.success(request, f'Review berhasil ditambahkan! Terima kasih, {nama}!')
-        return redirect('restaurant_detail', id=restaurant_id)
+        messages.success(self.request, f"✅ Foodie '{form.cleaned_data['username']}' berhasil dibuat!")
+        return super().form_valid(form)
+
+class FoodieDetailView(DetailView):
+    """Detail foodie"""
+    model = Foodie
+    template_name = 'restaurant/foodie_detail.html'
+    context_object_name = 'foodie'
+
+class ReviewListView(ListView):
+    """List semua review dengan pagination"""
+    model = Review
+    template_name = 'restaurant/review_list.html'
+    context_object_name = 'reviews'
+    paginate_by = 10
+
+
+class ReviewCreateView(CreateView):
+    """Create review baru"""
+    model = Review
+    template_name = 'restaurant/review_form.html'
+    fields = ['restaurant', 'foodie', 'rating', 'komentar']
+    success_url = reverse_lazy('review_list')
     
-    return render(request, 'restaurant/review_form.html', {'restaurant': restaurant})
+    def form_valid(self, form):
+        messages.success(self.request, "✅ Review berhasil ditambahkan!")
+        return super().form_valid(form)
 
-# List Semua Foodie
-def foodie_list(request):
-    foodies = Foodie.objects.all().order_by('-waktu')
-    return render(request, 'restaurant/foodie_list.html', {'foodies': foodies})
 
-def foodie_form(request):
-    if request.method == 'POST':
-        form = FoodieForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Akun berhasil dibuat! Selamat datang, {form.cleaned_data["username"]}!')
-            return redirect('foodie_list')
-    else:
-        form = FoodieForm()
+class ReviewDetailView(DetailView):
+    """Detail review"""
+    model = Review
+    template_name = 'restaurant/review_detail.html'
+    context_object_name = 'review'
+
+
+class ReviewUpdateView(UpdateView):
+    """Update review (hanya milik foodie tersebut)"""
+    model = Review
+    template_name = 'restaurant/review_form.html'
+    fields = ['rating', 'komentar']
+    success_url = reverse_lazy('review_list')
     
-    return render(request, 'restaurant/register_foodie.html', {'form': form})
-
-# Profile Foodie
-def foodie_detail(request, id):
-    foodie = get_object_or_404(Foodie, id=id)
-    reviews = foodie.reviews.all()
-    return render(request, 'restaurant/foodie_detail.html', {
-        'foodie': foodie,
-        'reviews': reviews
-    })
-
-# List Semua Review
-def review_list(request):
-    reviews = Review.objects.all().order_by('-waktu_review')
-    return render(request, 'restaurant/review_list.html', {'reviews': reviews})
-
-# Edit Review
-def edit_review(request, id):
-    review = get_object_or_404(Review, id=id)
+    def get_object(self, queryset=None):
+        review = get_object_or_404(Review, pk=self.kwargs['pk'])
+        # Di production, tambahkan permission check
+        return review
     
-    if request.method == 'POST':
-        # Update data review
-        review.rating = request.POST.get('rating')
-        review.komentar = request.POST.get('komentar')
-        
-        # Update nama & email foodie
-        nama = request.POST.get('nama')
-        email = request.POST.get('email')
-        
-        if review.foodie.username != nama or review.foodie.email != email:
-            # Cek apakah nama baru sudah ada
-            existing_foodie = Foodie.objects.filter(username=nama).exclude(id=review.foodie.id).first()
-            
-            if existing_foodie:
-                messages.error(request, f'Nama "{nama}" sudah dipakai oleh orang lain!')
-                return redirect('edit_review', id=id)
-            else:
-                # Update foodie yang ada
-                review.foodie.username = nama
-                review.foodie.email = email
-                review.foodie.save()
-        
-        review.save()
-        messages.success(request, 'Review berhasil diupdate!')
-        return redirect('restaurant_detail', id=review.restaurant.id)
-    
-    return render(request, 'restaurant/edit_review.html', {'review': review})
-
-# Delete Review
-def delete_review(request, id):
-    review = get_object_or_404(Review, id=id)
-    restaurant_id = review.restaurant.id
-    
-    if request.method == 'POST':
-        review.delete()
-        messages.success(request, 'Review berhasil dihapus!')
-        return redirect('restaurant_detail', id=restaurant_id)
-    
-    return render(request, 'restaurant/delete_review.html', {'review': review})
+    def form_valid(self, form):
+        messages.success(self.request, "✅ Review berhasil diperbarui!")
+        return super().form_valid(form)
 
 
-class RestaurantViewSet(viewsets.ReadOnlyModelViewSet):
+class ReviewDeleteView(DeleteView):
+    """Delete review (hanya milik foodie tersebut)"""
+    model = Review
+    template_name = 'restaurant/review_confirm_delete.html'
+    success_url = reverse_lazy('review_list')
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "✅ Review berhasil dihapus!")
+        return super().delete(request, *args, **kwargs)
+
+
+# ============ API VIEWSETS (DRF) ============
+
+class RestaurantViewSet(viewsets.ModelViewSet):
+    """API Restaurant - Read only"""
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
+    http_method_names = ['get', 'head', 'options']  # Hanya GET
+
 
 class FoodieViewSet(viewsets.ModelViewSet):
+    """API Foodie - Create & Read"""
     queryset = Foodie.objects.all()
     serializer_class = FoodieSerializer
+    http_method_names = ['get', 'post', 'head', 'options']  # GET & POST only
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """API Review - Full CRUD"""
     queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
     
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return ReviewCreateSerializer
-        return ReviewSerializer
+    def perform_update(self, serializer):
+        # Optional: Tambahkan logic untuk check owner review
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        # Optional: Tambahkan logic untuk check owner review
+        instance.delete()

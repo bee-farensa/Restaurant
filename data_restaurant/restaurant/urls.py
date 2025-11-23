@@ -1,20 +1,35 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
-urlpatterns = [
-    # Homepage
-    path('', views.restaurant_list, name='restaurant_list'),
-    
+# DRF Router untuk API
+router = DefaultRouter()
+router.register(r'restaurants', views.RestaurantViewSet, basename='restaurant-api')
+router.register(r'foodies', views.FoodieViewSet, basename='foodie-api')
+router.register(r'reviews', views.ReviewViewSet, basename='review-api')
+
+# Web URLs
+web_patterns = [
     # Restaurant
-    path('restaurant/<int:id>/', views.restaurant_detail, name='restaurant_detail'),
-    path('restaurant/<int:restaurant_id>/review/', views.review_form, name='review_form'),
+    path('restaurants/', views.RestaurantListView.as_view(), name='restaurant_list'),
+    path('restaurants/<int:pk>/', views.RestaurantDetailView.as_view(), name='restaurant_detail'),
     
     # Foodie
-    path('foodies/', views.foodie_list, name='foodie_list'),
-    path('foodie/<int:id>/', views.foodie_detail, name='foodie_detail'),
+    path('foodies/', views.FoodieListView.as_view(), name='foodie_list'),
+    path('foodies/<int:pk>/', views.FoodieDetailView.as_view(), name='foodie_detail'),
+    path('foodies/create/', views.FoodieCreateView.as_view(), name='foodie_create'),
     
     # Review
-    path('reviews/', views.review_list, name='review_list'),
-    path('review/<int:id>/edit/', views.edit_review, name='edit_review'),
-    path('review/<int:id>/delete/', views.delete_review, name='delete_review'),
+    path('reviews/', views.ReviewListView.as_view(), name='review_list'),
+    path('reviews/create/', views.ReviewCreateView.as_view(), name='review_create'),
+    path('reviews/<int:pk>/', views.ReviewDetailView.as_view(), name='review_detail'),
+    path('reviews/<int:pk>/edit/', views.ReviewUpdateView.as_view(), name='review_edit'),
+    path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name='review_delete'),
 ]
+
+# API URLs
+api_patterns = [
+    path('api/', include(router.urls)),
+]
+
+urlpatterns = web_patterns + api_patterns
