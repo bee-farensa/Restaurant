@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Restaurant, Foodie, Review
-
-# ========== MVT VIEWS (Web Interface) ==========
+from rest_framework import viewsets
+from .serializers import RestaurantSerializer, FoodieSerializer, ReviewSerializer, ReviewCreateSerializer
+from .forms import FoodieForm, ReviewForm
 
 # Homepage - List Restoran
-def home(request):
+def restaurant_list(request):
     restaurants = Restaurant.objects.all()
-    return render(request, 'restaurant/home.html', {'restaurants': restaurants})
+    return render(request, 'restaurant/restaurant_list.html', {'restaurants': restaurants})
 
 # Detail Restoran + Reviews
 def restaurant_detail(request, id):
@@ -19,7 +20,7 @@ def restaurant_detail(request, id):
     })
 
 # Submit Review
-def submit_review(request, restaurant_id):
+def review_form(request, restaurant_id):
     restaurant = get_object_or_404(Restaurant, id=restaurant_id)
     
     if request.method == 'POST':
@@ -50,12 +51,24 @@ def submit_review(request, restaurant_id):
         messages.success(request, f'Review berhasil ditambahkan! Terima kasih, {nama}!')
         return redirect('restaurant_detail', id=restaurant_id)
     
-    return render(request, 'restaurant/submit_review.html', {'restaurant': restaurant})
+    return render(request, 'restaurant/review_form.html', {'restaurant': restaurant})
 
 # List Semua Foodie
 def foodie_list(request):
     foodies = Foodie.objects.all().order_by('-waktu')
     return render(request, 'restaurant/foodie_list.html', {'foodies': foodies})
+
+def foodie_form(request):
+    if request.method == 'POST':
+        form = FoodieForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Akun berhasil dibuat! Selamat datang, {form.cleaned_data["username"]}!')
+            return redirect('foodie_list')
+    else:
+        form = FoodieForm()
+    
+    return render(request, 'restaurant/register_foodie.html', {'form': form})
 
 # Profile Foodie
 def foodie_detail(request, id):
@@ -115,11 +128,6 @@ def delete_review(request, id):
     
     return render(request, 'restaurant/delete_review.html', {'review': review})
 
-
-# ========== API VIEWS (Django REST Framework) ==========
-
-from rest_framework import viewsets
-from .serializers import RestaurantSerializer, FoodieSerializer, ReviewSerializer, ReviewCreateSerializer
 
 class RestaurantViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Restaurant.objects.all()

@@ -3,11 +3,11 @@ from . import views
 
 urlpatterns = [
     # Homepage
-    path('', views.home, name='home'),
+    path('', views.restaurant_list, name='restaurant_list'),
     
     # Restaurant
     path('restaurant/<int:id>/', views.restaurant_detail, name='restaurant_detail'),
-    path('restaurant/<int:restaurant_id>/review/', views.submit_review, name='submit_review'),
+    path('restaurant/<int:restaurant_id>/review/', views.review_form, name='review_form'),
     
     # Foodie
     path('foodies/', views.foodie_list, name='foodie_list'),

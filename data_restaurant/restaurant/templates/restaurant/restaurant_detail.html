@@ -8,7 +8,7 @@
 <p><strong>🍽️ Kategori:</strong> {{ restaurant.get_kategori_display }}</p>
 <p>{{ restaurant.deskripsi }}</p>
 
-<a href="{% url 'submit_review' restaurant.id %}" style="display: inline-block; padding: 10px 20px; background: green; color: white; text-decoration: none; border-radius: 5px;">
+<a href="{% url 'review_form' restaurant.id %}" style="display: inline-block; padding: 10px 20px; background: green; color: white; text-decoration: none; border-radius: 5px;">
     ✍️ Tulis Review
 </a>
 
@@ -28,17 +28,6 @@
             <small>{{ review.waktu_review|date:"d M Y, H:i" }}</small>
             
             <p>{{ review.komentar }}</p>
-            
-            <div style="margin-top: 10px;">
-                <a href="{% url 'edit_review' review.id %}" 
-                   style="padding: 5px 15px; background: blue; color: white; text-decoration: none; border-radius: 3px; font-size: 14px;">
-                    ✏️ Edit
-                </a>
-                <a href="{% url 'delete_review' review.id %}" 
-                   style="padding: 5px 15px; background: red; color: white; text-decoration: none; border-radius: 3px; font-size: 14px;">
-                    🗑️ Hapus
-                </a>
-            </div>
         </li>
         {% endfor %}
     </ul>
@@ -46,5 +35,5 @@
     <p>Belum ada review. Jadilah yang pertama!</p>
 {% endif %}
 
-<a href="{% url 'home' %}">← Kembali ke Home</a>
+<a href="{% url 'restaurant_list' %}">← Kembali ke Home</a>
 {% endblock %}

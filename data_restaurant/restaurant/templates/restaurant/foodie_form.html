@@ -1,0 +1,24 @@
+{% extends 'restaurant/base.html' %}
+
+{% block content %}
+<h2>✍️ Tulis Review untuk {{ restaurant.nama }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <p>
+        <label>Nama Kamu:</label><br>
+        <input type="text" name="nama" required placeholder="Masukkan nama kamu" style="width: 100%; padding: 8px;">
+    </p>
+    
+    <p>
+        <label>Email Kamu:</label><br>
+        <input type="email" name="email" required placeholder="contoh@email.com" style="width: 100%; padding: 8px;">
+    </p>    
+    
+    <button type="submit" style="padding: 10px 20px; background: green; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Submit Review
+    </button>
+    <a href="{% url 'foodie_detail' %}">Batal</a>
+</form>
+{% endblock %}
