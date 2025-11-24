@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-
 from .models import Restaurant, Foodie, Review
 from .serializers import RestaurantSerializer, FoodieSerializer, ReviewSerializer
 
@@ -16,7 +15,6 @@ class RestaurantListView(ListView):
     model = Restaurant
     template_name = 'restaurant/restaurant_list.html'
     context_object_name = 'restaurants'
-    paginate_by = 10
 
 
 class RestaurantDetailView(DetailView):
@@ -31,7 +29,6 @@ class FoodieListView(ListView):
     model = Foodie
     template_name = 'restaurant/foodie_list.html'
     context_object_name = 'foodies'
-    paginate_by = 10
 
 
 class FoodieCreateView(CreateView):
@@ -66,7 +63,6 @@ class ReviewListView(ListView):
     model = Review
     template_name = 'restaurant/review_list.html'
     context_object_name = 'reviews'
-    paginate_by = 10
 
 
 class ReviewCreateView(CreateView):
@@ -122,14 +118,14 @@ class RestaurantViewSet(viewsets.ModelViewSet):
     """API Restaurant - Read only"""
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
-    http_method_names = ['get', 'head', 'options']  # Hanya GET
+    http_method_names = ['get']  # Hanya GET
 
 
 class FoodieViewSet(viewsets.ModelViewSet):
     """API Foodie - Create & Read"""
     queryset = Foodie.objects.all()
     serializer_class = FoodieSerializer
-    http_method_names = ['get', 'post', 'head', 'options']  # GET & POST only
+    http_method_names = ['get', 'post']  # GET & POST only
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -142,7 +138,6 @@ class FoodieViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """API Review - Full CRUD"""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     

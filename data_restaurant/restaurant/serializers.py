@@ -39,3 +39,4 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'restaurant', 'foodie', 'restaurant_nama', 'foodie_username', 
                   'rating', 'komentar', 'waktu_review']
+    

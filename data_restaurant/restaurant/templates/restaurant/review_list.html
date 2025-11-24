@@ -17,9 +17,6 @@
         <br>
         Komentar: {{ review.komentar|truncatewords:15 }}
         <br>
-        <a href="{% url 'review_detail' review.id %}">👁️ Lihat</a> | 
-        <a href="{% url 'review_edit' review.id %}">✏️ Edit</a> | 
-        <a href="{% url 'review_delete' review.id %}">🗑️ Hapus</a>
     </li>
     {% empty %}
     <li>Belum ada review.</li>
